@@ -6,6 +6,7 @@ const createToDoDiv = (text, completed) => {
   const div = document.createElement("div");
   div.innerHTML = text;
   completed && div.classList.add("done");
+  div.classList.add("todo");
   return div;
 };
 const fillList = (toDos) => {
@@ -22,22 +23,35 @@ const getToDos = () => {
 };
 
 const toggleToDo = (e) => {
-  e.target.classList.toggle("done");
+  e.target.classList.contains("todo") && e.target.classList.toggle("done");
 };
 
 const addToDo = (e) => {
   e.preventDefault();
   const toDoText = formInput.value;
-  console.log(toDoText);
   if (toDoText === "") {
     alert("Please write a Todo");
     return;
   }
-  newToDoDiv = createToDoDiv(toDoText, false);
-  toDoList.appendChild(newToDoDiv);
+  newToDo = {
+    title: toDoText,
+    completed: false,
+  };
+
+  fetch("https://jsonplaceholder.typicode.com/todos", {
+    method: "POST",
+    body: JSON.stringify(newToDo),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const newToDoDiv = createToDoDiv(data.title, data.completed);
+      toDoList.appendChild(newToDoDiv);
+    });
 };
 
 toDoList.addEventListener("click", toggleToDo);
 toDoForm.addEventListener("submit", addToDo);
-
-getToDos();
+document.addEventListener("DOMContentLoaded", getToDos);
