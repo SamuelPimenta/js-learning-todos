@@ -2,22 +2,25 @@ const toDoList = document.getElementById("todo-list");
 const toDoForm = document.getElementById("todo-form");
 const formInput = document.getElementById("title");
 
-const createToDoDiv = (text, completed) => {
+const url = "https://jsonplaceholder.typicode.com";
+
+const createToDoDiv = (toDo) => {
   const div = document.createElement("div");
-  div.innerHTML = text;
-  completed && div.classList.add("done");
+  div.innerHTML = toDo.title;
+  toDo.completed && div.classList.add("done");
   div.classList.add("todo");
+  div.setAttribute("data-id", toDo.id);
   return div;
 };
 const fillList = (toDos) => {
   toDos.forEach((toDo) => {
-    newToDoDiv = createToDoDiv(toDo.title, toDo.completed);
+    newToDoDiv = createToDoDiv(toDo);
     toDoList.appendChild(newToDoDiv);
   });
 };
 
 const getToDos = () => {
-  fetch("https://jsonplaceholder.typicode.com/todos?_limit=5")
+  fetch(url + "/todos?_limit=5")
     .then((res) => res.json())
     .then((data) => fillList(data));
 };
@@ -38,7 +41,7 @@ const addToDo = (e) => {
     completed: false,
   };
 
-  fetch("https://jsonplaceholder.typicode.com/todos", {
+  fetch(url + "/todos", {
     method: "POST",
     body: JSON.stringify(newToDo),
     headers: {
@@ -47,11 +50,19 @@ const addToDo = (e) => {
   })
     .then((res) => res.json())
     .then((data) => {
-      const newToDoDiv = createToDoDiv(data.title, data.completed);
+      const newToDoDiv = createToDoDiv(data);
       toDoList.appendChild(newToDoDiv);
     });
 };
 
+const deleteToDo = (e) => {
+  fetch(url + "/todos/" + e.target.getAttribute("data-id"), {
+    method: "DELETE",
+  });
+  e.target.remove();
+};
+
 toDoList.addEventListener("click", toggleToDo);
+toDoList.addEventListener("dblclick", deleteToDo);
 toDoForm.addEventListener("submit", addToDo);
 document.addEventListener("DOMContentLoaded", getToDos);
