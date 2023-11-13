@@ -14,22 +14,22 @@ const createToDoDiv = (toDo) => {
 };
 const fillList = (toDos) => {
   toDos.forEach((toDo) => {
-    newToDoDiv = createToDoDiv(toDo);
+    const newToDoDiv = createToDoDiv(toDo);
     toDoList.appendChild(newToDoDiv);
   });
 };
 
-const getToDos = () => {
-  fetch(url + "/todos?_limit=5")
-    .then((res) => res.json())
-    .then((data) => fillList(data));
+const getToDos = async () => {
+  const res = await fetch(url + "/todos?_limit=5");
+  const data = await res.json();
+  fillList(data);
 };
 
 const toggleToDo = (e) => {
   e.target.classList.contains("todo") && e.target.classList.toggle("done");
 };
 
-const addToDo = (e) => {
+const addToDo = async (e) => {
   e.preventDefault();
   const toDoText = formInput.value;
   if (toDoText === "") {
@@ -41,18 +41,16 @@ const addToDo = (e) => {
     completed: false,
   };
 
-  fetch(url + "/todos", {
+  const res = await fetch(url + "/todos", {
     method: "POST",
     body: JSON.stringify(newToDo),
     headers: {
       "Content-Type": "application/json",
     },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      const newToDoDiv = createToDoDiv(data);
-      toDoList.appendChild(newToDoDiv);
-    });
+  });
+  const data = await res.json();
+  const newToDoDiv = createToDoDiv(data);
+  toDoList.appendChild(newToDoDiv);
 };
 
 const deleteToDo = (e) => {
